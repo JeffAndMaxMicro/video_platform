@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import environ
+from datetime import timedelta
 
 env = environ.Env(
     # 设置默认值和转换器
@@ -46,6 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'rest_framework',
+    'rest_framework_simplejwt',
     'videos',
 ]
 
@@ -57,8 +60,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    'videos.middleware.JWTAuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'videoPlateform.urls'
@@ -132,6 +133,12 @@ USE_L10N = True
 
 USE_TZ = True
 
+MINIO_ENDPOINT = env('MINIO_ENDPOINT')
+MINIO_ROOT_USER = env('MINIO_ROOT_USER')
+MINIO_ROOT_PASSWORD = env('MINIO_ROOT_USER')
+MINIO_BUCKET_NAME = env('MINIO_BUCKET_NAME')
+
+JWT_SECRET_KEY = env('JWT_SECRET_KEY')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
@@ -140,10 +147,12 @@ STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+        'videos.authentication.backend.ExternalServiceAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'videos.authentication.permissions.ExternalServicePermission',
     ],
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
 }
