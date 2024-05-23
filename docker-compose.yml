@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: gunicorn --bind 0.0.0.0:8000 videoPlateform.wsgi:application
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8000"
