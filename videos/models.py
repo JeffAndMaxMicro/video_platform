@@ -16,10 +16,10 @@ class Videos(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     video_hash = models.CharField(max_length=255)
-    user = models.ForeignKey(User, models.DO_NOTHING, blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'videos'

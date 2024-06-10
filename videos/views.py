@@ -49,7 +49,7 @@ def VideoUpload(request):
         video = Videos(
             title=request.data.get('title'),
             description=request.data.get('description'),
-            videohash=file_hash,
+            video_hash=file_hash,
             user=request.user,
         )
         video.save()

@@ -4,7 +4,18 @@ services:
   web:
     build: .
     command: gunicorn --bind 0.0.0.0:8000 videoPlateform.wsgi:application
+    environment:
+      - DB_HOST=mysql  # 覆蓋 .env 文件中的 DEBUG 變量
+      - DB_PORT=3306  # 使用默認值，或者來自環境的 NEW_SECRET_KEY
+      - MINIO_ENDPOINT=docker-minio-1:9000
     volumes:
       - .:/app
+    networks:
+      - rs0-network
     ports:
       - "8080:8000"
+
+networks:
+  rs0-network:
+    external: true
+
