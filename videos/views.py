@@ -53,17 +53,26 @@ def VideoUpload(request):
             'user_id': request.user.id,
         }
 
+        # 连接到RabbitMQ
         connection = pika.BlockingConnection(pika.ConnectionParameters(host=settings.RABBITMQ_HOST, port=settings.RABBITMQ_PORT))
         channel = connection.channel()
-        channel.queue_declare(queue='video_queue', durable=True)
 
+        # 声明交换机
+        channel.exchange_declare(exchange='video_exchange', exchange_type='direct', durable=True)
+
+        # 声明队列并绑定到交换机
+        channel.queue_declare(queue='video_queue', durable=True)
+        channel.queue_bind(exchange='video_exchange', queue='video_queue', routing_key='video_key')
+
+        # 发送消息到交换机
         channel.basic_publish(
             exchange='video_exchange',
-            routing_key='video_queue',
+            routing_key='video_key',
             body=json.dumps(message),
             properties=pika.BasicProperties(delivery_mode=2)  # 使消息持久化
         )
 
+        # 关闭连接
         connection.close()
     
     except Exception as e:

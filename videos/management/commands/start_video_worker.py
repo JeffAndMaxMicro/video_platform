@@ -2,7 +2,7 @@ import os
 import pika
 import json
 from django.core.management.base import BaseCommand
-from videos.models import Video
+from videos.models import User, Video
 from videoPlateform import settings
 
 class Command(BaseCommand):
@@ -31,11 +31,12 @@ class Command(BaseCommand):
         channel.start_consuming()
 
     def save_video_metadata_to_db(self, video_data):
+        user = User.objects.get(id=video_data['user_id'])
         video = Video(
-            video_id=video_data['video_id'],
-            file_path=video_data['file_path'],
-            bucket_name=video_data['bucket_name'],
-            object_name=video_data['object_name']
+            title=video_data['title'],
+            description=video_data['description'],
+            video_hash=video_data['video_hash'],
+            user=user,
         )
         video.save()
-        print("Video metadata saved successfully.")
+        print(f"Video metadata for {video.title} saved successfully.")

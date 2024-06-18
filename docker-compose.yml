@@ -8,6 +8,8 @@ services:
       - DB_HOST=mysql  # 覆蓋 .env 文件中的 DEBUG 變量
       - DB_PORT=3306  # 使用默認值，或者來自環境的 NEW_SECRET_KEY
       - MINIO_ENDPOINT=docker-minio-1:9000
+      - RABBITMQ_HOST=docker-rabbitmq-1
+      - RABBITMQ_PORT=5672
     volumes:
       - .:/app
     networks:
