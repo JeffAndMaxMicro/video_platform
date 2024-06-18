@@ -1,8 +1,10 @@
+import json
 from django.http import JsonResponse
+import pika
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from videoPlateform import settings
-from .models import Videos
+from .models import Video
 from .serializers import VideoSerializer
 
 from rest_framework.response import Response
@@ -44,15 +46,25 @@ def VideoUpload(request):
             content_type='video/mp4'  # 根据实际文件类型设置
         )
 
-        # todo: 改為透過message queue處理
-        # 保存视频信息到数据库
-        video = Videos(
-            title=request.data.get('title'),
-            description=request.data.get('description'),
-            video_hash=file_hash,
-            user=request.user,
+        message = {
+            'title': request.data.get('title'),
+            'description': request.data.get('description'),
+            'video_hash': file_hash,
+            'user_id': request.user.id,
+        }
+
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=settings.RABBITMQ_HOST, port=settings.RABBITMQ_PORT))
+        channel = connection.channel()
+        channel.queue_declare(queue='video_queue', durable=True)
+
+        channel.basic_publish(
+            exchange='video_exchange',
+            routing_key='video_queue',
+            body=json.dumps(message),
+            properties=pika.BasicProperties(delivery_mode=2)  # 使消息持久化
         )
-        video.save()
+
+        connection.close()
     
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -61,6 +73,6 @@ def VideoUpload(request):
 
 @api_view(['GET'])
 def VideoList(request):
-    videos = Videos.objects.all()
+    videos = Video.objects.all()
     serializer = VideoSerializer(videos, many=True)
     return JsonResponse(serializer.data, safe=False)

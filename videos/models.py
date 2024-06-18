@@ -12,7 +12,7 @@ class User(AbstractUser):
     external_id = models.CharField(max_length=255, unique=True)
 
 
-class Videos(models.Model):
+class Video(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     video_hash = models.CharField(max_length=255)
