@@ -3,5 +3,5 @@ from django.contrib import admin
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/video/', include('videos.urls')),
+    path('api/videos/', include('videos.urls')),
 ]

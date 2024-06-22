@@ -1,0 +1,2 @@
+from .video_serializers import VideoSerializer
+from .comment_serializers import CommentSerializer
