@@ -1,13 +1,17 @@
 from django.urls import path, include
 from . import views
 from rest_framework.routers import DefaultRouter
+from rest_framework_nested.routers import NestedDefaultRouter
 from .views import VideoViewSet, CommentViewSet
 
-# 創建一個DefaultRouter實例並註冊ViewSet
 router = DefaultRouter()
 router.register(r'', VideoViewSet)
-router.register(r'comments', CommentViewSet)
+
+# 創建嵌套路由
+videos_router = NestedDefaultRouter(router, r'', lookup='video')
+videos_router.register(r'comments', CommentViewSet, basename='video-comments')
 
 urlpatterns = [
-    path('', include(router.urls)),  # 包含所有由DefaultRouter生成的路由
+    path('', include(router.urls)),
+    path('', include(videos_router.urls)),
 ]

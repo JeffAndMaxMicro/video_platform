@@ -81,8 +81,3 @@ class VideoViewSet(viewsets.ModelViewSet):
 
         return Response({'message': 'Video uploaded successfully'}, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=['get'])
-    def list_videos(self, request):
-        videos = Video.objects.all()
-        serializer = VideoSerializer(videos, many=True)
-        return Response(serializer.data)
