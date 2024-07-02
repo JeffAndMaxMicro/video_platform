@@ -2,8 +2,11 @@ import os
 import pika
 import json
 from django.core.management.base import BaseCommand
-from videos.models import User, Video
+from videos.models import Video
 from videoPlateform import settings
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class Command(BaseCommand):
     help = 'Starts the RabbitMQ worker for processing video upload events.'

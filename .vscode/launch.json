@@ -14,6 +14,16 @@
                 "8021"
             ],
             "django": true
+        },
+        {
+            "name": "Django: Start Comment Worker",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "start_comment_worker"
+            ],
+            "django": true,
         }
     ]
 }
