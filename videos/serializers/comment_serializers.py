@@ -21,10 +21,25 @@ class CommentSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 class CommentListSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S', read_only=True)
+    updated_at = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S', read_only=True)
+    replies = serializers.SerializerMethodField()
+    mongo_id = serializers.SerializerMethodField()
+
     class Meta:
         model = Comment
-        fields = ['id', 'user_id', 'content', 'created_at', 'updated_at']
-        read_only_fields = ['user_id', 'created_at', 'updated_at' 'id', 'id', 'video_id']
+        fields = ['id', 'user_id', 'content', 'created_at', 'updated_at', 'replies', 'mongo_id']
+        read_only_fields = ['user_id', 'created_at', 'updated_at', 'id', 'video_id', 'replies', 'mongo_id']
+
+    def get_replies(self, obj):
+        if hasattr(obj, 'nested_replies'):
+            return CommentListSerializer(obj.nested_replies, many=True).data
+        return []
+    
+    def get_mongo_id(self, obj):
+        if hasattr(obj, 'mongo_id'):
+            return obj.mongo_id
+        return None
 
 class CommentDetailSerializer(serializers.ModelSerializer):
     video = serializers.SerializerMethodField()

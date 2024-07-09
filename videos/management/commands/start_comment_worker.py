@@ -81,10 +81,10 @@ class Command(BaseCommand):
                 content=comment.content,
                 created_at=comment.created_at,
                 updated_at=comment.updated_at,
-                replies=[]
+                # replies=[]
             )
-            if reply_to_comment:
-                mongo_comment.replies.append(reply_to_comment.id)  # 添加回覆的ID
+            # if reply_to_comment:
+            #     mongo_comment.replies.append(reply_to_comment.id)  # 添加回覆的ID
             mongo_comment.save()
             print(f"Comment for video {video.title} saved to MongoDB successfully.")
         except Exception as e:
@@ -93,19 +93,7 @@ class Command(BaseCommand):
             Comment.objects.filter(pk=comment.id).delete()
             raise
 
-        try:
-            # 保存到 Redis
-            redis_comment_key = f"video:{comment_data['video_id']}:comments"
-            redis_comment = {
-                'user_id': comment_data['user_id'],
-                'text': comment_data['text'],
-                'timestamp': comment_data['timestamp']
-            }
-            redis_client.rpush(redis_comment_key, json.dumps(redis_comment))
-            print(f"Comment for video {video.title} saved to Redis successfully.")
-        except redis.RedisError as e:
-            logging.error(f"Error saving comment to Redis: {e}")
-            # 補償：刪除已保存的 MySQL 和 MongoDB 記錄
-            Comment.objects.filter(pk=comment.id).delete()
-            mongo_comment.delete()
-            raise
+        # 保存到 Redis
+        redis_comment_key = f"video:{comment_data['video_id']}:comments"
+        redis_client.delete(redis_comment_key)
+        print(f"Comment for video {video.title} saved successfully and cache expired.")
